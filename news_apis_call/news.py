@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def fetch_news_catagory(category):
+    print("fetching catagory.........")
     CATEGORY_NEWS_API_KEY = os.getenv("CATEGORY_NEWS_API_KEY")
     if not CATEGORY_NEWS_API_KEY:
         raise Exception("CATEGORY_NEWS_API_KEY environment variable is not set")
@@ -19,6 +20,7 @@ def fetch_news_catagory(category):
     return data
 
 def fetch_news_location(location):
+    print("fetching location.........")
     LOCATION_NEWS_API_KEY = os.getenv("LOCATION_NEWS_API_KEY")
     if not LOCATION_NEWS_API_KEY:
         raise Exception("LOCATION_NEWS_API_KEY environment variable is not set")

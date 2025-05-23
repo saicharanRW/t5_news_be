@@ -21,7 +21,8 @@ class NewsRequest(BaseModel):
 
 @app.post("/api/getnews")
 def get_news(payload: NewsRequest):
-    print("Getting news........")
+    print("Getting news")
+    
     catagory = news.fetch_news_catagory(payload.category)
     location = news.fetch_news_location(payload.location)
     
@@ -32,16 +33,12 @@ def get_news(payload: NewsRequest):
     processed_catagory = process_catagory_data(catagory)   
     processed_location = process_location_data(location)
     
-    # print("saving to convex........")
-    # for news_item in processed_catagory:
-    #     print(news_item)
-    #     print("---------------------------------")
-    #     save_news(news_item)
+    print("saving to convex........")
+    for news_item in processed_catagory:
+        save_news(news_item)
         
-    # for news_item in processed_location:
-    #     print(news_item)
-    #     print("---------------------------------")
-    #     #save_news(news_item)
+    for news_item in processed_location:
+        save_news(news_item)
     
     return {
         "allnews" : processed_catagory + processed_location,
