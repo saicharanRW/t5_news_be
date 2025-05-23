@@ -47,7 +47,7 @@ def process_catagory_location_data(category, max_count=5):
             "source": article.get("source", "Unknown"),
             "author": article.get("author"),
             "title": article.get("title"),
-            "description": article.get("text"),
+            "description": article.get("summary"),
             "url": article.get("url"),
             "urlToImage": article.get("image"),
             "publishedAt": article.get("publish_date"),
