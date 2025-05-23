@@ -33,3 +33,12 @@ def fetch_news_location(location):
     data = response.json()
     
     return data
+
+def fetch_category_in_location(category, location):
+    WORLDNEWS_API_KEY = os.getenv("WORLD_NEWS_API")
+    url = f"https://api.worldnewsapi.com/search-news?categories={category}&location-filter={location},100&api-key={WORLDNEWS_API_KEY}"
+    response = requests.get(url, timeout=30)
+    if response.status_code != 200:
+        raise Exception(f"News API returned status code {response.status_code}")
+    data = response.json()
+    return data

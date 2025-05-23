@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
 from news_apis_call import news
-from utils.process_data import process_catagory_data, process_location_data
+from utils.process_data import process_catagory_data, process_location_data, process_catagory_location_data
 from utils.save_db import save_news, get_date
 
 app = FastAPI()
@@ -23,23 +23,26 @@ class NewsRequest(BaseModel):
 def get_news(payload: NewsRequest):
     print("Getting news")
     
-    catagory = news.fetch_news_catagory(payload.category)
-    location = news.fetch_news_location(payload.location)
+    # catagory = news.fetch_news_catagory(payload.category)
+    # location = news.fetch_news_location(payload.location)
+    catagory_location = news.fetch_category_in_location(payload.category, payload.location)
     
-    catagory = catagory.get("data")
-    location = location.get("articles")
+    # catagory = catagory.get("data")
+    # location = location.get("articles")
+    cata_loco = catagory_location.get("news")
     
-    print("processing data........")
-    processed_catagory = process_catagory_data(catagory)   
-    processed_location = process_location_data(location)
+    # print("processing data........")
+    # processed_catagory = process_catagory_data(catagory)   
+    # processed_location = process_location_data(location)
+    processed_cata_Loc = process_catagory_location_data(cata_loco)
     
-    print("saving to convex........")
-    for news_item in processed_catagory:
-        save_news(news_item)
+    # print("saving to convex........")
+    # for news_item in processed_catagory:
+    #     save_news(news_item)
         
-    for news_item in processed_location:
-        save_news(news_item)
+    # for news_item in processed_location:
+    #     save_news(news_item)
     
     return {
-        "allnews" : processed_catagory + processed_location,
+        "allnews" : processed_cata_Loc,
     }
