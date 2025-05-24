@@ -1,10 +1,14 @@
-import requests, io, gzip, re
+import requests, io, gzip, re, os
 from bs4 import BeautifulSoup
 
 from scrape.scrape_content import scrape_website_contents
 from model.SearchResult import SearchResult
 
-base_url = 'https://www.google.com'
+from dotenv import load_dotenv
+
+load_dotenv()
+
+BASE_URL = os.getenv("BASE_URL")
             
 def extractUrl(href):
     match = re.search(r'(https?://[^&]+)&', href)
@@ -36,7 +40,7 @@ def extractSearchResults(html):
 
 def google_search(query):
     query_encoded = requests.utils.quote(query)
-    url = f"{base_url}/search?q={query_encoded}"
+    url = f"{BASE_URL}/search?q={query_encoded}"
     print("google search url ", url)
     
     url_contents = []
@@ -45,7 +49,7 @@ def google_search(query):
         'User-Agent': 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20060927 Firefox/1.0.4 (Debian package 1.0.4-2sarge12)',
         'Connection': 'keep-alive',
         'Accept-Encoding': 'gzip',
-        'Referer': base_url
+        'Referer': BASE_URL
     }
     
     try:

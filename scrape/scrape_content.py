@@ -1,9 +1,15 @@
 from model.SearchResult import SearchResult
-import requests, io, gzip
+import requests, io, gzip, os
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
+from utils.save_html import save_html_to_file
 
-base_url = 'https://www.google.com'
+from dotenv import load_dotenv
+
+load_dotenv()
+
+BASE_URL = os.getenv("BASE_URL")
+SAVE_HTML = os.getenv("SAVE_HTML")
 
 def scrape_website_contents(extract_url):
     
@@ -11,14 +17,17 @@ def scrape_website_contents(extract_url):
         'User-Agent': 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20060927 Firefox/1.0.4 (Debian package 1.0.4-2sarge12)',
         'Connection': 'keep-alive',
         'Accept-Encoding': 'gzip',
-        'Referer': base_url
+        'Referer': BASE_URL
     }
     
     text = ""
     images = []
+    html = ""
     
     try:
-        response = requests.get(SearchResult.getUrl(extract_url), headers=headers, timeout=10)
+        url = SearchResult.getUrl(extract_url)
+        response = requests.get(url, headers=headers, timeout=10)
+        
         if response.headers.get('Content-Encoding') == 'gzip':
             try:
                 buf = io.BytesIO(response.content)
@@ -28,6 +37,9 @@ def scrape_website_contents(extract_url):
                 html = response.text
         else:
             html = response.text
+        
+        if SAVE_HTML == "true":
+            save_html_to_file(url, html)
             
         text = get_text_content(html)
         images = get_image_content(extract_url, html)
@@ -54,13 +66,14 @@ def get_image_content(search_result ,html):
     soup = BeautifulSoup(html, "html.parser")
     
     for img in soup.select("img"):
-        src = img.get("src") or img.get("data-src")
+        src = img.get("src")
+        data_src = img.get("data-src")
         alt = img.get("alt", "")
                 
         if src and not src.startswith("data:image") and "blank.gif" not in src:
             if not bool(urlparse(src).netloc):
                 src = urljoin(SearchResult.getUrl(search_result), src)
-            image = { "url": src, "alt": alt }
+            image = { "url": src, "data_src": data_src, "alt": alt }
             images.append(image)
     
     return images
