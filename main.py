@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from news_apis_call import news
 from utils.process_data import process_catagory_data, process_location_data
 from utils.save_db import save_news, get_date
+from scrape.google_scrape import google_search
 
 app = FastAPI()
 app.add_middleware(
@@ -43,3 +44,12 @@ def get_news(payload: NewsRequest):
     return {
         "allnews" : processed_catagory + processed_location,
     }
+    
+@app.post("/api/cata-loco")
+def get_news(payload: NewsRequest):
+    print("cameeee")
+    query = payload.category + " in " + payload.location + " " + "latest information"
+    print("QRERYING GOOGLE on : " + query)
+    result = google_search(query)
+    
+    return { "result" : result }
