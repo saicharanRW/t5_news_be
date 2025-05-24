@@ -14,6 +14,9 @@ def scrape_website_contents(extract_url):
         'Referer': base_url
     }
     
+    text = ""
+    images = []
+    
     try:
         response = requests.get(SearchResult.getUrl(extract_url), headers=headers, timeout=10)
         if response.headers.get('Content-Encoding') == 'gzip':
@@ -64,5 +67,5 @@ def get_image_content(search_result ,html):
 
 if __name__ == '__main__':
     url = SearchResult()
-    url.url = "https://www.atlasobscura.com/places/perarignar-anna-memorial"
+    url.url = "https://cio.economictimes.indiatimes.com/tag/chennai"
     scrape_website_contents(url)
