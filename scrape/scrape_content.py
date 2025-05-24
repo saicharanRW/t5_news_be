@@ -50,7 +50,7 @@ def get_image_content(search_result ,html):
     images = []
     soup = BeautifulSoup(html, "html.parser")
     
-    for img in soup.select("article img, .article-body img, .entry-content img, .post-content img"):
+    for img in soup.select("img"):
         src = img.get("src") or img.get("data-src")
         alt = img.get("alt", "")
                 
@@ -63,5 +63,6 @@ def get_image_content(search_result ,html):
     return images
 
 if __name__ == '__main__':
-    url = "https://www.atlasobscura.com/places/perarignar-anna-memorial"
+    url = SearchResult()
+    url.url = "https://www.atlasobscura.com/places/perarignar-anna-memorial"
     scrape_website_contents(url)
