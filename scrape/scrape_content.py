@@ -3,7 +3,7 @@ import requests, io, gzip, os, time
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 from utils.save_html import save_html_to_file
-from llm_image_finder.main_img_finder import find_main_img 
+from utils.main_img_finder import find_main_img 
 
 from dotenv import load_dotenv
 
