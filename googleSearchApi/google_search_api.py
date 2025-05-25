@@ -26,11 +26,11 @@ def format_items(items):
     formated_items= []
     
     for item in items:
+        pagemap = item.get("pagemap", {})
+        metatags = pagemap.get("metatags", [])
+        image = metatags[0].get("og:image") if metatags else None
         
-        pagemap = item.get("pagemap").get("metatags")
-        image = pagemap[0].get("og:image")
-            
-        transformated_item ={
+        transformated_item = {
             "title": item.get("title"),
             "url": item.get("link"),
             "description": item.get("snippet"),
