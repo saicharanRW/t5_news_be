@@ -47,7 +47,7 @@ def get_news(payload: NewsRequest):
     
 @app.post("/api/cata-loco")
 def get_news(payload: NewsRequest):
-    query = payload.category + " in " + payload.location + " " + "latest information"
+    query = payload.category + " in " + payload.location + " " + "today latest information"
     print("QUERYING GOOGLE on : " + query)
     result = google_search(query)
     

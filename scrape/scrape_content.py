@@ -1,8 +1,9 @@
 from model.SearchResult import SearchResult
-import requests, io, gzip, os
+import requests, io, gzip, os, time
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 from utils.save_html import save_html_to_file
+from llm_image_finder.main_img_finder import find_main_img 
 
 from dotenv import load_dotenv
 
@@ -43,7 +44,10 @@ def scrape_website_contents(extract_url):
             
         text = get_text_content(html)
         images = get_image_content(extract_url, html)
-    
+        
+        #scraped_content = { "url" : SearchResult.getUrl(extract_url), "title" : SearchResult.getTitle(extract_url), "text" : text, "images" : images }
+        #final_scraped_content = find_main_img(scraped_content)
+        
     except requests.RequestException as e:
         print('Request failed:', e)
     
@@ -66,8 +70,8 @@ def get_image_content(search_result ,html):
     soup = BeautifulSoup(html, "html.parser")
     
     for img in soup.select("img"):
-        src = img.get("src")
-        data_src = img.get("data-src")
+        src = img.get("src", "")
+        data_src = img.get("data-src", "")
         alt = img.get("alt", "")
                 
         if src and not src.startswith("data:image") and "blank.gif" not in src:
