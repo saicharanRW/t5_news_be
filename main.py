@@ -5,6 +5,7 @@ from news_apis_call import news
 from utils.process_data import process_catagory_data, process_location_data
 from utils.save_db import save_news, get_date
 from scrape.google_scrape import google_search
+from googleSearchApi.google_search_api import google_search_api
 from model.request import KeywordRequest
 
 app = FastAPI()
@@ -46,5 +47,12 @@ def get_news(payload: KeywordRequest):
     query = payload.category + " in " + payload.location + " " + "today latest information"
     print("QUERYING GOOGLE on : " + query)
     result = google_search(query)
+    
+    return { "result" : result }
+
+@app.post("/api/google-search-api")
+def get_news(payload: KeywordRequest):
+    query = payload.category + " in " + payload.location + " " + "today latest information"
+    result = google_search_api(query)
     
     return { "result" : result }
