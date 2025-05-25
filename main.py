@@ -1,11 +1,11 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
 from news_apis_call import news
 from utils.process_data import process_catagory_data, process_location_data
 from utils.save_db import save_news, get_date
 from scrape.google_scrape import google_search
+from model.request import KeywordRequest
 
 app = FastAPI()
 app.add_middleware(
@@ -16,12 +16,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class NewsRequest(BaseModel):
-    category: str
-    location: str
-
 @app.post("/api/getnews")
-def get_news(payload: NewsRequest):
+def get_news(payload: KeywordRequest):
     print("Getting news")
     
     catagory = news.fetch_news_catagory(payload.category)
@@ -46,7 +42,7 @@ def get_news(payload: NewsRequest):
     }
     
 @app.post("/api/cata-loco")
-def get_news(payload: NewsRequest):
+def get_news(payload: KeywordRequest):
     query = payload.category + " in " + payload.location + " " + "today latest information"
     print("QUERYING GOOGLE on : " + query)
     result = google_search(query)
