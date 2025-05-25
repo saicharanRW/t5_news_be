@@ -1,8 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from news_apis_call import news
-from utils.process_data import process_catagory_data, process_location_data
 from utils.save_db import save_news, get_date
 from scrape.google_scrape import google_search
 from googleSearchApi.google_search_api import google_search_api
@@ -16,31 +14,6 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
-
-@app.post("/api/getnews")
-def get_news(payload: KeywordRequest):
-    print("Getting news")
-    
-    catagory = news.fetch_news_catagory(payload.category)
-    location = news.fetch_news_location(payload.location)
-    
-    catagory = catagory.get("data")
-    location = location.get("articles")
-    
-    print("processing data........")
-    processed_catagory = process_catagory_data(catagory)   
-    processed_location = process_location_data(location)
-    
-    print("saving to convex........")
-    for news_item in processed_catagory:
-        save_news(news_item)
-        
-    for news_item in processed_location:
-        save_news(news_item)
-    
-    return {
-        "allnews" : processed_catagory + processed_location,
-    }
     
 @app.post("/api/cata-loco")
 def get_news(payload: KeywordRequest):
