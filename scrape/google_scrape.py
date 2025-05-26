@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_URL = os.getenv("BASE_URL")
+SCRAPE_TOP_COUNT = os.getenv("SCRAPE_TOP_COUNT")
             
 def extractUrl(href):
     match = re.search(r'(https?://[^&]+)&', href)
@@ -66,7 +67,7 @@ def google_search(query):
             
         extracted_urls = extractSearchResults(html)
         
-        for extract_url in extracted_urls:
+        for extract_url in extracted_urls[:SCRAPE_TOP_COUNT]:
             url_content = scrape_website_contents(extract_url)
             url_contents.append(url_content)
             

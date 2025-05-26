@@ -377,36 +377,4 @@ class ComprehensiveImageScraper:
                 failed.append({'url': img_url, 'error': str(e)})
                 self.logger.error(f"Failed to download {img_url}: {e}")
         
-        return {'downloaded': downloaded, 'failed': failed}
-
-
-# Usage example
-def scrape_content_start(url):
-    # Example usage
-    scraper = ComprehensiveImageScraper(headless=True)
-    
-    # Scrape images
-    result = scraper.scrape_images(url)
-    
-    # Print results
-    print(f"\n{'='*50}")
-    print(f"SCRAPING RESULTS")
-    print(f"{'='*50}")
-    print(f"URL: {result['url']}")
-    print(f"Total images found: {result['total_images_found']}")
-    print(f"Static method found: {result['static_method_count']}")
-    print(f"Selenium method found: {result['selenium_method_count']}")
-    print(f"\nImage URLs:")
-    for i, img_url in enumerate(result['images'], 1):
-        print(f"{i:3d}. {img_url}")
-    
-    # # Ask if user wants to download images
-    # download = input(f"\nDo you want to download all {len(result['images'])} images? (y/n): ")
-    # if download.lower() == 'y':
-    #     download_result = scraper.download_images(result['images'])
-    #     print(f"\nDownloaded: {len(download_result['downloaded'])} images")
-    #     print(f"Failed: {len(download_result['failed'])} images")
-
-
-if __name__ == "__main__":
-    scrape_content_start("https://www.dmk.in/en/resources/events/")
+        return { 'downloaded': downloaded, 'failed': failed }
