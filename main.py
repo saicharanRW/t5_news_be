@@ -26,6 +26,7 @@ def get_news(payload: KeywordRequest):
 @app.post("/api/google-search-api")
 def get_news(payload: KeywordRequest):
     query = payload.category + " in " + payload.location + " " + "today latest information"
+    print("GOOGLE SEARCH API : " + query)
     result = google_search_api(query)
     
     return { "result" : result }
