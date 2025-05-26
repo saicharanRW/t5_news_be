@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 from utils.save_html import save_html_to_file
 from utils.main_img_finder import find_main_img 
+from scrape.comprehensiveImage_scraper import ComprehensiveImageScraper
 
 from dotenv import load_dotenv
 
@@ -43,7 +44,10 @@ def scrape_website_contents(extract_url):
             save_html_to_file(url, html)
             
         text = get_text_content(html)
-        images = get_image_content(extract_url, html)
+        #images = get_image_content(extract_url, html)
+        
+        scrapper = ComprehensiveImageScraper(headless=True)
+        images = scrapper.scrape_images(url)
         
         #scraped_content = { "url" : SearchResult.getUrl(extract_url), "title" : SearchResult.getTitle(extract_url), "text" : text, "images" : images }
         #final_scraped_content = find_main_img(scraped_content)
@@ -51,7 +55,7 @@ def scrape_website_contents(extract_url):
     except requests.RequestException as e:
         print('Request failed:', e)
     
-    return { "url" : SearchResult.getUrl(extract_url), "title" : SearchResult.getTitle(extract_url), "text" : text, "images" : images }
+    return { "url" : SearchResult.getUrl(extract_url), "title" : SearchResult.getTitle(extract_url), "text" : text , "images" : images["images"] }
 
 def get_text_content(html):
     soup = BeautifulSoup(html, "html.parser")
