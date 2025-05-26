@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 BASE_URL = os.getenv("BASE_URL")
-SCRAPE_TOP_COUNT = os.getenv("SCRAPE_TOP_COUNT")
+SCRAPE_TOP_COUNT = int(os.getenv("SCRAPE_TOP_COUNT"))
             
 def extractUrl(href):
     match = re.search(r'(https?://[^&]+)&', href)

@@ -3,8 +3,9 @@ import requests, io, gzip, os, time
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 from utils.save_html import save_html_to_file
-from utils.main_img_finder import find_main_img 
+from utils.llm_calls.main_img_finder import find_main_img 
 from scrape.comprehensiveImage_scraper import ComprehensiveImageScraper
+from utils.llm_calls.filter_img import filter_img, ImageMetadata
 
 from dotenv import load_dotenv
 
@@ -49,13 +50,13 @@ def scrape_website_contents(extract_url):
         scrapper = ComprehensiveImageScraper(headless=True)
         images = scrapper.scrape_images(url)
         
-        #scraped_content = { "url" : SearchResult.getUrl(extract_url), "title" : SearchResult.getTitle(extract_url), "text" : text, "images" : images }
-        #final_scraped_content = find_main_img(scraped_content)
+        scraped_content = { "url" : SearchResult.getUrl(extract_url), "title" : SearchResult.getTitle(extract_url), "text" : text, "images" : images["images"] }
+        #filter_img_url = filter_img(scraped_content)
         
     except requests.RequestException as e:
         print('Request failed:', e)
-    
-    return { "url" : SearchResult.getUrl(extract_url), "title" : SearchResult.getTitle(extract_url), "text" : text , "images" : images["images"] }
+        
+    return { "url" : SearchResult.getUrl(extract_url), "title" : SearchResult.getTitle(extract_url), "text" : text, "images" : scraped_content["images"] }
 
 def get_text_content(html):
     soup = BeautifulSoup(html, "html.parser")

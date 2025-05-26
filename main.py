@@ -17,7 +17,7 @@ app.add_middleware(
     
 @app.post("/api/cata-loco")
 def get_news(payload: KeywordRequest):
-    query = payload.category + " in " + payload.location + " " + "today latest information"
+    query = "latest news about " + payload.category + " in " + payload.location
     print("QUERYING GOOGLE on : " + query)
     result = google_search(query)
     
@@ -25,7 +25,7 @@ def get_news(payload: KeywordRequest):
 
 @app.post("/api/google-search-api")
 def get_news(payload: KeywordRequest):
-    query = payload.category + " in " + payload.location + " " + "today latest information"
+    query = "latest news about " + payload.category + " in " + payload.location
     print("GOOGLE SEARCH API : " + query)
     result = google_search_api(query)
     
