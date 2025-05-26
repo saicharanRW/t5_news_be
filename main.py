@@ -5,6 +5,7 @@ from util.save_db import save_news, get_date
 from scrape_content.google_scrape import google_search
 from google_search.google_search_api import google_search_api
 from crawl_using_ai.crawl_images import crawl_4_ai
+from crawl_using_ai.image import process_image_from_url
 from request.requests import KeywordRequest
 
 app = FastAPI()
@@ -37,5 +38,4 @@ def get_news(payload: KeywordRequest):
     query = "latest news about " + payload.category + " in " + payload.location
     print("GOOGLE SEARCH API : " + query)
     result = crawl_4_ai(query)
-    
     return { "result" : result }

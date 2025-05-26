@@ -8,6 +8,7 @@ from request.SearchResult import SearchResult
 import time
 import random
 from urllib.parse import urljoin
+from .image import process_image_from_url
 
 class Product(BaseModel):
     title: str
@@ -135,6 +136,32 @@ def process_urls_sync(urls):
 
     return results
 
+def process_crawled_images(result):
+    """Process the crawled images and add titles to them"""
+    processed_images = []
+    for item in result["results"]:
+        if item["status"] == "success":
+            # Get image URL and title
+            image_url = item.get("image")
+            title = item.get("title")
+            
+            # Skip if no image or invalid image URL
+            if not image_url or image_url == "Image not found" or image_url == "N/A" or image_url == "Error":
+                continue
+                
+            # Process the image
+            output_path = process_image_from_url(image_url, title)
+            if output_path:
+                processed_images.append({
+                    "original_url": image_url,
+                    "processed_path": output_path,
+                    "title": title
+                })
+    
+    # Add processed images to the result
+    result["processed_images"] = processed_images
+    return result
+
 def crawl_4_ai(query):
     """Main function to search and extract titles and images from URLs"""
     print(f"Searching for: {query}")
@@ -176,7 +203,7 @@ def crawl_4_ai(query):
         print(f"Failed extractions: {failed}")
         print(f"{'='*60}")
 
-        return {
+        result = {
             "query": query,
             "urls_found": len(urls),
             "urls_processed": len(results),
@@ -184,6 +211,11 @@ def crawl_4_ai(query):
             "failed_extractions": failed,
             "results": results
         }
+        
+        # Process the images and add them to the result
+        result = process_crawled_images(result)
+        
+        return result
 
     except Exception as e:
         error_msg = f"Error in crawl_4_ai: {str(e)}"
