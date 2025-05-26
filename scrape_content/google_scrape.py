@@ -41,7 +41,7 @@ def extractSearchResults(html):
 
 def google_search(query, config):
     query_encoded = requests.utils.quote(query)
-    url = f"{BASE_URL}/search?q={query_encoded}"
+    url = f"{BASE_URL}/search?q={query_encoded}" + "&tbm=nws"
     print("google search url ", url)
     
     url_contents = []
