@@ -39,7 +39,7 @@ def extractSearchResults(html):
     
     return extracted_urls
 
-def google_search(query):
+def google_search(query, config):
     query_encoded = requests.utils.quote(query)
     url = f"{BASE_URL}/search?q={query_encoded}"
     print("google search url ", url)
@@ -67,9 +67,13 @@ def google_search(query):
             
         extracted_urls = extractSearchResults(html)
         
-        for extract_url in extracted_urls[:SCRAPE_TOP_COUNT]:
-            url_content = scrape_website_contents(extract_url)
-            url_contents.append(url_content)
+        if config == 'basic':
+            for extract_url in extracted_urls[:SCRAPE_TOP_COUNT]:
+                url_content = scrape_website_contents(extract_url)
+                url_contents.append(url_content)
+        
+        if config == 'crawl-ai':
+            url_contents = extracted_urls
             
     except requests.RequestException as e:
         print('Request failed:', e)
