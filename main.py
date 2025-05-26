@@ -55,19 +55,19 @@ def get_news(payload: KeywordRequest):
     result = google_search(query, "crawl-ai")
     
     urls = []
-    unique_euuid = str(uuid.uuid4())
+    unique_uuid = str(uuid.uuid4())
     
     for res in result[:SCRAPE_TOP_COUNT]:
         url = SearchResult.getUrl(res)
         urls.append(url)
             
     result_script = str(Path(__file__).parent / "crawl_using_ai/crawl_ai_main.py")
-    command = ["python", result_script] + urls + [unique_euuid]
+    command = ["python", result_script] + urls + [unique_uuid]
     
     try:
         subprocess.run(command, check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error running result.py: {e}")
     
-    return {"status": "success", "urls": urls}
+    return {"status": "success", "urls": urls, "uuid" : unique_uuid}
         
