@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from utils.save_db import save_news, get_date
-from scrape.google_scrape import google_search
-from googleSearchApi.google_search_api import google_search_api
-from crawl4Ai.crawl_4_ai import crawl_4_ai
-from model.request import KeywordRequest
+from util.save_db import save_news, get_date
+from scrape_content.google_scrape import google_search
+from google_search.google_search_api import google_search_api
+from crawl_using_ai.crawl_images import crawl_4_ai
+from request.requests import KeywordRequest
 
 app = FastAPI()
 app.add_middleware(
