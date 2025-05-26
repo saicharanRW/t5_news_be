@@ -78,7 +78,7 @@ def get_image_content(search_result ,html):
         data_src = img.get("data-src", "")
         alt = img.get("alt", "")
                 
-        if src and not src.startswith("data:image") and "blank.gif" not in src:
+        if src and not src.startswith("data:image") and "blank.gif" not in src and not src.endswith(".cms"):
             if not bool(urlparse(src).netloc):
                 src = urljoin(SearchResult.getUrl(search_result), src)
             image = { "url": src, "data_src": data_src, "alt": alt }
