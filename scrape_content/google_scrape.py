@@ -1,8 +1,8 @@
 import requests, io, gzip, re, os
 from bs4 import BeautifulSoup
 
-from scrape.scrape_content import scrape_website_contents
-from model.SearchResult import SearchResult
+from scrape_content.scrape_content import scrape_website_contents
+from request.SearchResult import SearchResult
 
 from dotenv import load_dotenv
 

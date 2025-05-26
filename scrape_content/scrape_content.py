@@ -1,11 +1,11 @@
-from model.SearchResult import SearchResult
+from request.SearchResult import SearchResult
 import requests, io, gzip, os, time
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
-from utils.save_html import save_html_to_file
-from utils.llm_calls.main_img_finder import find_main_img 
-from scrape.comprehensiveImage_scraper import ComprehensiveImageScraper
-from utils.llm_calls.filter_img import filter_img, ImageMetadata
+from util.save_html import save_html_to_file
+from util.llm_calls.main_img_finder import find_main_img 
+from scrape_content.comprehensiveImage_scraper import ComprehensiveImageScraper
+from util.llm_calls.filter_img import filter_img, ImageMetadata
 
 from dotenv import load_dotenv
 

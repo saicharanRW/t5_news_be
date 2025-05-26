@@ -3,8 +3,8 @@ import requests
 from bs4 import BeautifulSoup
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any
-from scrape.google_scrape import google_search
-from model.SearchResult import SearchResult
+from scrape_content.google_scrape import google_search
+from request.SearchResult import SearchResult
 import time
 import random
 
