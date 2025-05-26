@@ -101,14 +101,21 @@ async def main(url):
     return result
 
 if __name__ == "__main__":
-    urls = sys.argv[1:]
+    urls = sys.argv[1:-1]
+    uuid = sys.argv[-1]
+    print("urlllll ", urls)
+    print("uuidd ", uuid)
     final_data_output = []
         
     for url in urls:
         result = asyncio.run(main(url))
         final_data_output.append(result)
+        
+    output_dir = 'generated_data'
+    os.makedirs(output_dir, exist_ok=True)
+    file_path = os.path.join(output_dir, uuid + '.json')
     
-    with open('scraped_content.json', 'w', encoding='utf-8') as f:
+    with open(file_path, 'w', encoding='utf-8') as f:
         json.dump(final_data_output, f, indent=4, ensure_ascii=False)
         
     print("FINISHED")

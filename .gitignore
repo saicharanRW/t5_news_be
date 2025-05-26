@@ -3,4 +3,4 @@ venv/
 /html_output
 __pycache__/
 *__pycache__/
-scraped_content.json
+generated_data/

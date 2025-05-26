@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import subprocess, os
+import subprocess, os, uuid
 
 from util.save_db import save_news, get_date
 from scrape_content.google_scrape import google_search
@@ -55,13 +55,14 @@ def get_news(payload: KeywordRequest):
     result = google_search(query, "crawl-ai")
     
     urls = []
+    unique_euuid = str(uuid.uuid4())
     
     for res in result[:SCRAPE_TOP_COUNT]:
         url = SearchResult.getUrl(res)
         urls.append(url)
             
     result_script = str(Path(__file__).parent / "crawl_using_ai/crawl_ai_main.py")
-    command = ["python", result_script] + urls
+    command = ["python", result_script] + urls + [unique_euuid]
     
     try:
         subprocess.run(command, check=True)
