@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import subprocess, os, uuid, json
 from fastapi.responses import StreamingResponse
 
-from util.format_data import format_data, generate_image
+from util.format_data import format_data, generate_image, do_similarity
 from util.save_db import save_news, get_date
 from scrape_content.google_scrape import google_search
 from google_search.google_search_api import google_search_api
@@ -86,22 +86,27 @@ def get_news(payload: GetNewsRequest):
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
             
+            final_result = []
             formated_output = format_data(data)
             
             for data in formated_output:
                 url = data['url']
                 url_title_tag = extract_title_from_url(url)
-                data['title'] = url_title_tag['title']
                 articles = data['articles']
                 
-                for article in articles:
-                    title = article['title']
-                    img_url = article['image_src']
+                best_url, best_title = do_similarity(url_title_tag, articles)
+                img_base64 = generate_image(best_url, best_title)
+                
+                final_data = {
+                    "url" : url,
+                    "title" : url_title_tag['title'],
+                    "image_title" : best_title,
+                    "image_base_64" : img_base64,
+                    "img_url" : best_url
+                }
+                final_result.append(final_data)
                     
-                    output = generate_image(img_url, title)
-                    article['image_src'] = output
-                    
-            return formated_output  
+            return final_result
 
     except FileNotFoundError:
         return {"error": "File not found"}
