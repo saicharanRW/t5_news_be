@@ -4,18 +4,22 @@ from colorthief import ColorThief
 import requests
 from io import BytesIO
 import uuid
+import base64
 
 def get_contrast_color(rgb):
+    """Get contrasting text color based on background color"""
     r, g, b = rgb
     luminance = 0.299 * r + 0.587 * g + 0.114 * b
     return '#000000' if luminance > 128 else '#FFFFFF'
 
 def enhance_image(image, sharpen, contrast):
+    """Enhance image with sharpening and contrast adjustments"""
     if image.mode != 'RGB':
         image = image.convert('RGB')
     return ImageEnhance.Contrast(ImageEnhance.Sharpness(image).enhance(sharpen)).enhance(contrast)
 
-def get_font(text, max_width, max_height, bold=False):
+def get_font(text, max_width, max_height):
+    """Get appropriate font size for the given text and dimensions"""
     font_size = min(max_width // 15, max_height // 2, 48)
     font_size = max(font_size, 10)
     
@@ -32,7 +36,8 @@ def get_font(text, max_width, max_height, bold=False):
     
     return ImageFont.load_default()
 
-def add_text(image, text, ratio=0.75, color='black', bold=False):
+def add_text(image, text, ratio=0.75, color='black'):
+    """Add text overlay to image with word wrapping"""
     if not text.strip():
         return image
     
@@ -42,7 +47,7 @@ def add_text(image, text, ratio=0.75, color='black', bold=False):
     max_width = width - 10
     max_height = height - y - 10
     
-    font = get_font(text, max_width, max_height, bold)
+    font = get_font(text, max_width, max_height)
     
     lines = []
     current_line = ''
@@ -57,7 +62,7 @@ def add_text(image, text, ratio=0.75, color='black', bold=False):
             current_line = word
     if current_line:
         lines.append(current_line)
-    
+
     y_pos = y + (max_height - len(lines)*font.size) // 2
     for line in lines:
         draw.text((5, y_pos), line, fill=color, font=font)
@@ -66,16 +71,14 @@ def add_text(image, text, ratio=0.75, color='black', bold=False):
     return image
 
 def crop_image(image, crop_width=800, crop_height=600):
-    # Get current dimensions
+    """Crop image to specified dimensions from center"""
     width, height = image.size
     
-    # Calculate center crop coordinates
     left = (width - crop_width) // 2 if width > crop_width else 0
     top = (height - crop_height) // 2 if height > crop_height else 0
     right = left + min(width, crop_width)
     bottom = top + min(height, crop_height)
     
-    # Crop and return
     return image.crop((left, top, right, bottom))
 
 def download_image(image_url):
@@ -88,48 +91,41 @@ def download_image(image_url):
         print(f"Error downloading image from {image_url}: {e}")
         return None
 
-def process_image_from_url(image_url, title, output_dir="processed_images"):
-    """Process image from URL and save with title overlay"""
+def image_to_base64(image, format='PNG'):
+    """Convert PIL Image to base64 string"""
+    buffer = BytesIO()
+    image.save(buffer, format=format)
+    buffer.seek(0)
+    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    return f"data:image/{format.lower()};base64,{image_base64}"
+
+def process_image_from_url(image_url, title, output_dir=None):
+    """Process image from URL and return base64 string instead of saving to disk"""
     try:
-        # Create output directory if it doesn't exist
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-        
         # Download image
         img_data = download_image(image_url)
         if not img_data:
             return None
             
-        # Generate unique filename
-        filename = f"{uuid.uuid4().hex[:8]}.png"
-        output_path = os.path.join(output_dir, filename)
+        # Process the image and get base64
+        base64_image = process_image(img_data, title)
         
-        # Process the image
-        process_image(img_data, output_path, title, 1.5, 1.1, 1000, 800)
-        
-        return output_path
+        return base64_image
         
     except Exception as e:
         print(f"Error processing image from URL: {e}")
         return None
 
-def process_image(input_path, output_path, text, sharpen, contrast, crop_width=800, crop_height=600):
+def process_image(img_data, text, sharpen=1.5, contrast=1.1, crop_width=800, crop_height=600):
+    """Process image with enhancements and text overlay, return base64 string"""
     try:
-        # Handle both file paths and BytesIO objects
-        if isinstance(input_path, str):
-            img = Image.open(input_path)
-            img_for_color = input_path
-        else:
-            img = Image.open(input_path)
-            img_for_color = img
+        # Open image from BytesIO
+        img = Image.open(img_data)
         
-        # Get dominant color
+        # Get dominant color for text contrast
         try:
-            if isinstance(img_for_color, str):
-                color_thief = ColorThief(img_for_color)
-            else:
-                input_path.seek(0)
-                color_thief = ColorThief(input_path)
+            img_data.seek(0)
+            color_thief = ColorThief(img_data)
             dominant_color = color_thief.get_color(quality=1)
             text_color = get_contrast_color(dominant_color)
         except:
@@ -144,21 +140,12 @@ def process_image(input_path, output_path, text, sharpen, contrast, crop_width=8
         # Enhance image
         img = enhance_image(img, sharpen, contrast)
         
-        # Add visual elements
+        # Add text overlay
         img = add_text(img, text, color=text_color)
         
-        # Save result
-        img.save(output_path)
-        print(f"Image saved to {output_path}")
+        # Convert to base64 and return
+        return image_to_base64(img)
         
     except Exception as e:
         print(f"Error processing image: {e}")
-
-if __name__ == "__main__":
-    # Configuration
-    SHARPEN = 1.5
-    CONTRAST = 1.1
-    CROP_WIDTH = 1000  # Default crop width
-    CROP_HEIGHT = 800  # Default crop height
-    
-    process_image(SHARPEN, CONTRAST, CROP_WIDTH, CROP_HEIGHT)
+        return None

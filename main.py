@@ -83,6 +83,7 @@ def get_news(payload: GetNewsRequest):
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
+            
             formated_output = format_data(data)
             
             for data in formated_output:

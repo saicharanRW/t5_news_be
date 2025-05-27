@@ -3,6 +3,8 @@ from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 import base64
 
+from crawl_using_ai.image import process_image_from_url
+
 def format_data(data):
     formatted_data = []
     
@@ -27,22 +29,7 @@ def format_data(data):
     return formatted_data
 
 def generate_image(img_url, title):
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                      "AppleWebKit/537.36 (KHTML, like Gecko) "
-                      "Chrome/114.0.0.0 Safari/537.36"
-    }
-    try:
-        response = requests.get(img_url, headers=headers, timeout=10)
-        response.raise_for_status()
+    base64_image = process_image_from_url(img_url, title)
+    return base64_image
 
-        img_data = BytesIO(response.content)
-        encoded_string = base64.b64encode(img_data.read()).decode('utf-8')
-
-        content_type = response.headers.get('Content-Type', 'image/jpeg')
-        base64_image = f"data:{content_type};base64,{encoded_string}"
-        return base64_image
-    except requests.exceptions.RequestException as e:
-        print(f"Failed to fetch image from URL {img_url}: {e}")
-        return ""
 
