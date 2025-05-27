@@ -103,8 +103,6 @@ async def main(url):
 if __name__ == "__main__":
     urls = sys.argv[1:-1]
     uuid = sys.argv[-1]
-    print("urlllll ", urls)
-    print("uuidd ", uuid)
     final_data_output = []
         
     for url in urls:

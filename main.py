@@ -58,6 +58,7 @@ def get_news(payload: KeywordRequest):
     
     urls = []
     unique_uuid = str(uuid.uuid4())
+    print("UUID :", unique_uuid)
     
     for res in result[:SCRAPE_TOP_COUNT]:
         url = SearchResult.getUrl(res)
@@ -93,9 +94,6 @@ def get_news(payload: GetNewsRequest):
                 for article in articles:
                     title = article['title']
                     img_url = article['image_src']
-                    
-                    print("titileee ", title)
-                    print("img_urllll ", img_url)
                     
                     output = generate_image(img_url, title)
                     article['image_src'] = output
