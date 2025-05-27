@@ -1,7 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import subprocess, os, uuid, json
+from fastapi.responses import StreamingResponse
 
+from util.format_data import format_data, generate_image
 from util.save_db import save_news, get_date
 from scrape_content.google_scrape import google_search
 from google_search.google_search_api import google_search_api
@@ -81,9 +83,27 @@ def get_news(payload: GetNewsRequest):
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-        return { "result" : data }
+            formated_output = format_data(data)
+            
+            for data in formated_output:
+                url = data['url']
+                articles = data['articles']
+                
+                for article in articles:
+                    title = article['title']
+                    img_url = article['image_src']
+                    
+                    print("titileee ", title)
+                    print("img_urllll ", img_url)
+                    
+                    output = generate_image(img_url, title)
+                    article['image_src'] = output
+                    
+            return formated_output  
+
     except FileNotFoundError:
         return {"error": "File not found"}
     except json.JSONDecodeError:
         return {"error": "Invalid JSON format"}
+        
         
