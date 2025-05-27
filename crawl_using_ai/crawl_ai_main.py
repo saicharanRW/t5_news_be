@@ -14,6 +14,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 class Product(BaseModel):
     title: str
     image_src: str 
+    img_alt_attribute: str
 
 async def crawl_single_url(url: str):
     llm_strategy = LLMExtractionStrategy(
@@ -24,8 +25,10 @@ async def crawl_single_url(url: str):
         schema=Product.model_json_schema(),
         extraction_type="schema",
         instruction="""Your are provided with a news article url, get the heading of the news the article talks about \n
-        and one more task is to ge the image tag src with is very to the found heading \n
-        Just take one heading and the image src near to that heading""",
+        and one more task is to ge the image tag src which is near to the found heading, also get the alt attrubute of the img \n
+        Just take one heading and the image src near to that heading.\n
+        
+        NOTE: consider and get only the main heading""",
         chunk_token_threshold=1000,
         overlap_rate=0.0,
         apply_chunking=True,

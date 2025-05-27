@@ -11,6 +11,7 @@ from crawl_using_ai.crawl_images import crawl_4_ai
 from crawl_using_ai.image import process_image_from_url
 from request.requests import KeywordRequest, GetNewsRequest
 from request.SearchResult import SearchResult
+from crawl_using_ai.crawl_images import extract_title_from_url
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -89,6 +90,8 @@ def get_news(payload: GetNewsRequest):
             
             for data in formated_output:
                 url = data['url']
+                url_title_tag = extract_title_from_url(url)
+                data['title'] = url_title_tag['title']
                 articles = data['articles']
                 
                 for article in articles:

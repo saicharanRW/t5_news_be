@@ -13,7 +13,8 @@ def format_data(data):
             valid_articles = [
                 {
                     "title": article["title"],
-                    "image_src": article["image_src"]
+                    "image_src": article["image_src"],
+                    "image_alt": article["img_alt_attribute"]
                 }
                 
                 for article in entry.get("data", [])
@@ -23,8 +24,9 @@ def format_data(data):
             if valid_articles:
                 formatted_data.append({
                     "url": entry["url"],
+                    "title": entry['title'],
                     "articles": valid_articles
-                    })
+                })
     
     return formatted_data
 
