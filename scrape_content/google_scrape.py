@@ -22,9 +22,12 @@ def extractSearchResults(html):
     
     if div:
         links = div.find_all('a', href=True)
+        count = 0
         for link in links:
+            if count >= SCRAPE_TOP_COUNT:
+                break
             raw_href = link['href']
-            if ".google." in raw_href:
+            if ".google." in raw_href or ".thehindu." in raw_href or ".hindustantimes." in raw_href:
                 continue
             url = extractUrl(raw_href)
             if not url:
@@ -68,7 +71,7 @@ def google_search(query, config):
         extracted_urls = extractSearchResults(html)
         
         if config == 'basic':
-            for extract_url in extracted_urls[:SCRAPE_TOP_COUNT]:
+            for extract_url in extracted_urls:
                 url_content = scrape_website_contents(extract_url)
                 url_contents.append(url_content)
         
