@@ -1,13 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import subprocess, os, uuid
+import subprocess, os, uuid, json
 
 from util.save_db import save_news, get_date
 from scrape_content.google_scrape import google_search
 from google_search.google_search_api import google_search_api
 from crawl_using_ai.crawl_images import crawl_4_ai
 from crawl_using_ai.image import process_image_from_url
-from request.requests import KeywordRequest
+from request.requests import KeywordRequest, GetNewsRequest
 from request.SearchResult import SearchResult
 from pathlib import Path
 from dotenv import load_dotenv
@@ -70,4 +70,20 @@ def get_news(payload: KeywordRequest):
         print(f"Error running result.py: {e}")
     
     return {"status": "success", "urls": urls, "uuid" : unique_uuid}
+
+@app.post("/api/get-news")
+def get_news(payload: GetNewsRequest):
+    news_uuid = payload.news_uuid
+    
+    inout_dir = 'generated_data'
+    file_path = os.path.join(inout_dir, news_uuid + '.json')
+    
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return { "result" : data }
+    except FileNotFoundError:
+        return {"error": "File not found"}
+    except json.JSONDecodeError:
+        return {"error": "Invalid JSON format"}
         
