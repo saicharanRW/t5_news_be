@@ -53,7 +53,11 @@ def get_news(payload: KeywordRequest):
 
 @app.post("/api/crawl-ai")
 def get_news(payload: KeywordRequest):
-    query = "latest news about " + payload.category + " in " + payload.location
+    if len(payload.location) == 0:
+        query = "latest news about " + payload.category
+    else:
+        query = "latest news about " + payload.category + " in " + payload.location
+
     print("GOOGLE SEARCH API : " + query)
     result = google_search(query, "crawl-ai")
     
@@ -61,7 +65,7 @@ def get_news(payload: KeywordRequest):
     unique_uuid = str(uuid.uuid4())
     print("UUID :", unique_uuid)
     
-    for res in result[:SCRAPE_TOP_COUNT]:
+    for res in result:
         url = SearchResult.getUrl(res)
         urls.append(url)
             

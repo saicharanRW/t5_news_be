@@ -27,7 +27,7 @@ def extractSearchResults(html):
             if count >= SCRAPE_TOP_COUNT:
                 break
             raw_href = link['href']
-            if ".google." in raw_href or ".thehindu." in raw_href or ".hindustantimes." in raw_href:
+            if ".google." in raw_href or ".thehindu." in raw_href or ".hindustantimes." in raw_href or "x.com" in raw_href or 'instagram.com' in raw_href or 'facebook.com' in raw_href or 'twitter.com' in raw_href:
                 continue
             url = extractUrl(raw_href)
             if not url:
