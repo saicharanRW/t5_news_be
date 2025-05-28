@@ -14,7 +14,7 @@ from request.SearchResult import SearchResult
 from crawl_using_ai.crawl_images import extract_title_from_url
 from pathlib import Path
 from dotenv import load_dotenv
-from video import images_to_advanced_video
+from crawl_using_ai.video import images_to_advanced_video
 
 load_dotenv()
 
@@ -104,7 +104,7 @@ def get_news(payload: GetNewsRequest):
                 articles = data['articles']
                 
                 best_url, best_title = do_similarity(url_title_tag, articles)
-                img_base64 = process_image_from_url(best_url, best_title)
+                img_base64 = process_image_from_url(best_url)
                 
                 # Save image to disk for video generation
                 if img_base64 and img_base64.startswith("data:image"):

@@ -5,8 +5,6 @@ import base64
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from crawl_using_ai.image import process_image_from_url
-
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
 def format_data(data):
