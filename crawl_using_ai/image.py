@@ -1,6 +1,5 @@
 import os
 from PIL import Image, ImageDraw, ImageEnhance, ImageFont, UnidentifiedImageError
-from colorthief import ColorThief
 import requests
 from io import BytesIO
 import uuid

@@ -14,6 +14,7 @@ from request.SearchResult import SearchResult
 from crawl_using_ai.crawl_images import extract_title_from_url
 from pathlib import Path
 from dotenv import load_dotenv
+from video import images_to_advanced_video
 
 load_dotenv()
 
@@ -93,6 +94,10 @@ def get_news(payload: GetNewsRequest):
             final_result = []
             formated_output = format_data(data)
             
+            image_folder = "processed_images"
+            os.makedirs(image_folder, exist_ok=True)
+            image_paths = []
+
             for data in formated_output:
                 url = data['url']
                 url_title_tag = extract_title_from_url(url)
@@ -100,6 +105,16 @@ def get_news(payload: GetNewsRequest):
                 
                 best_url, best_title = do_similarity(url_title_tag, articles)
                 img_base64 = process_image_from_url(best_url, best_title)
+                
+                # Save image to disk for video generation
+                if img_base64 and img_base64.startswith("data:image"):
+                    import base64
+                    img_data = img_base64.split(",")[1]
+                    img_bytes = base64.b64decode(img_data)
+                    img_path = os.path.join(image_folder, f"{len(image_paths):03d}.png")
+                    with open(img_path, "wb") as img_file:
+                        img_file.write(img_bytes)
+                    image_paths.append(img_path)
                 
                 final_data = {
                     "url" : url,
@@ -109,12 +124,21 @@ def get_news(payload: GetNewsRequest):
                     "img_url" : best_url
                 }
                 final_result.append(final_data)
-                    
-            return final_result
+            
+            # Generate video from images
+            if image_paths:
+                output_video = os.path.join(image_folder, f"{news_uuid}.mp4")
+                images_to_advanced_video(image_folder, output_video, fps=24)
+            else:
+                output_video = None
+
+            return {
+                "news": final_result,
+                "video_path": output_video
+            }
 
     except FileNotFoundError:
         return {"error": "File not found"}
     except json.JSONDecodeError:
         return {"error": "Invalid JSON format"}
-        
-        
+
