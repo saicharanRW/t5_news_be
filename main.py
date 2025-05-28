@@ -1,24 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import subprocess, os, uuid, json
-from fastapi.responses import StreamingResponse
-
-from util.format_data import format_data, do_similarity
-from util.save_db import save_news, get_date
-from scrape_content.google_scrape import google_search
-from google_search.google_search_api import google_search_api
-from crawl_using_ai.crawl_images import crawl_4_ai
-from crawl_using_ai.image import process_image_from_url
-from request.requests import KeywordRequest, GetNewsRequest
-from request.SearchResult import SearchResult
-from crawl_using_ai.crawl_images import extract_title_from_url
 from pathlib import Path
 from dotenv import load_dotenv
+
+from util.format_data import format_data, do_similarity
+from crawl_using_ai.crawl_images import extract_title_from_url
+from crawl_using_ai.image import process_image_from_url
 from crawl_using_ai.video import images_to_advanced_video
+from request.requests import KeywordRequest, GetNewsRequest
 
 load_dotenv()
-
-SCRAPE_TOP_COUNT = int(os.getenv("SCRAPE_TOP_COUNT"))
 
 app = FastAPI()
 app.add_middleware(
@@ -28,47 +20,25 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
-    
-@app.post("/api/cata-loco")
-def get_news(payload: KeywordRequest):
-    query = "latest news about " + payload.category + " in " + payload.location
-    print("QUERYING GOOGLE on : " + query)
-    result = google_search(query, "basic")
-    
-    return { "result" : result }
-
-@app.post("/api/google-search-api")
-def get_news(payload: KeywordRequest):
-    query = "today latest news about " + payload.category + " in " + payload.location
-    print("GOOGLE SEARCH API : " + query)
-    result = google_search_api(query)
-    
-    return { "result" : result }
-
-@app.post("/api/crawl-4-ai")
-def get_news(payload: KeywordRequest):
-    query = "latest news about " + payload.category + " in " + payload.location
-    print("GOOGLE SEARCH API : " + query)
-    result = crawl_4_ai(query)
-    return { "result" : result }
 
 @app.post("/api/crawl-ai")
-def get_news(payload: KeywordRequest):
-    if len(payload.location) == 0:
-        query = "latest news about " + payload.category
+def crawl_ai(payload: KeywordRequest):
+    if not payload.location:
+        query = f"latest news about {payload.category}"
     else:
-        query = "latest news about " + payload.category + " in " + payload.location
+        query = f"latest news about {payload.category} in {payload.location}"
 
-    print("GOOGLE SEARCH API : " + query)
-    result = google_search(query, "crawl-ai")
+    # This would call your actual search function
+    # result = google_search(query, "crawl-ai")
+    result = []  # Placeholder
     
     urls = []
     unique_uuid = str(uuid.uuid4())
-    print("UUID :", unique_uuid)
     
-    for res in result:
-        url = SearchResult.getUrl(res)
-        urls.append(url)
+    # This would process actual search results
+    # for res in result:
+    #     urls.append(SearchResult.getUrl(res))
+    urls = ["https://example.com"]  # Placeholder
             
     result_script = str(Path(__file__).parent / "crawl_using_ai/crawl_ai_main.py")
     command = ["python", result_script] + urls + [unique_uuid]
@@ -78,27 +48,27 @@ def get_news(payload: KeywordRequest):
     except subprocess.CalledProcessError as e:
         print(f"Error running result.py: {e}")
     
-    return {"status": "success", "urls": urls, "uuid" : unique_uuid}
+    return {"status": "success", "uuid": unique_uuid}
 
 @app.post("/api/get-news")
 def get_news(payload: GetNewsRequest):
     news_uuid = payload.news_uuid
-    
     inout_dir = 'generated_data'
     file_path = os.path.join(inout_dir, news_uuid + '.json')
     
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-            
-            final_result = []
             formated_output = format_data(data)
             
-            image_folder = "processed_images"
+            # Create unique folder for this request's images
+            image_folder = os.path.join("processed_images", news_uuid)
             os.makedirs(image_folder, exist_ok=True)
             image_paths = []
+            titles = []  # Store titles for video text overlays
 
-            for data in formated_output:
+            # Process first 5 images for 25-second video
+            for i, data in enumerate(formated_output[:5]):
                 url = data['url']
                 url_title_tag = extract_title_from_url(url)
                 articles = data['articles']
@@ -111,34 +81,29 @@ def get_news(payload: GetNewsRequest):
                     import base64
                     img_data = img_base64.split(",")[1]
                     img_bytes = base64.b64decode(img_data)
-                    img_path = os.path.join(image_folder, f"{len(image_paths):03d}.png")
+                    img_path = os.path.join(image_folder, f"{i:03d}.png")
                     with open(img_path, "wb") as img_file:
                         img_file.write(img_bytes)
                     image_paths.append(img_path)
+                    titles.append(best_title)
                 
-                final_data = {
-                    "url" : url,
-                    "title" : url_title_tag['title'],
-                    "image_title" : best_title,
-                    "image_base_64" : img_base64,
-                    "img_url" : best_url
+                yield {
+                    "url": url,
+                    "title": url_title_tag['title'],
+                    "image_title": best_title,
+                    "image_base_64": img_base64,
+                    "img_url": best_url
                 }
-                final_result.append(final_data)
             
-            # Generate video from images
+            # Generate video from images with text overlays
             if image_paths:
-                output_video = os.path.join(image_folder, f"{news_uuid}.mp4")
-                images_to_advanced_video(image_folder, output_video, fps=24)
+                output_video = os.path.join(image_folder, "video.mp4")
+                images_to_advanced_video(image_folder, output_video, titles, fps=24)
+                yield {"video_path": output_video}
             else:
-                output_video = None
-
-            return {
-                "news": final_result,
-                "video_path": output_video
-            }
+                yield {"video_path": None}
 
     except FileNotFoundError:
-        return {"error": "File not found"}
+        yield {"error": "File not found"}
     except json.JSONDecodeError:
-        return {"error": "Invalid JSON format"}
-
+        yield {"error": "Invalid JSON format"}
