@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import subprocess, os, uuid, json
 from fastapi.responses import StreamingResponse
 
-from util.format_data import format_data, generate_image, do_similarity
+from util.format_data import format_data, do_similarity
 from util.save_db import save_news, get_date
 from scrape_content.google_scrape import google_search
 from google_search.google_search_api import google_search_api
