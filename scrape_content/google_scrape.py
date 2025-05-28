@@ -39,7 +39,8 @@ def extractSearchResults(html):
             span = link.find('div')
             result.content = span.get_text(strip=True) if span else ''
             extracted_urls.append(result)
-    
+            count = count + 1
+            
     return extracted_urls
 
 def google_search(query, config):
