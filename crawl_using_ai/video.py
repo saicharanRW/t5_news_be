@@ -15,16 +15,10 @@ except ImportError:
     LANCZOS_RESAMPLE = Image.LANCZOS
 
 SUPPORTED_IMAGE_EXTENSIONS = ('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff', '.webp')
-VIDEO_TARGET_WIDTH = 1280
-VIDEO_TARGET_HEIGHT = 720
 VIDEO_FPS = 30
-VIDEO_IMAGE_DURATION = 4.5
-VIDEO_TRANSITION_DURATION = 1.2
 VIDEO_MIN_ZOOM_EFFECT = 1.05
 VIDEO_MAX_ZOOM_EFFECT = 1.25
 VIDEO_PAN_MAX_PERCENTAGE = 0.15
-VIDEO_ENCODING_PRESET = 'medium'
-VIDEO_ENCODING_CRF = '18'
 
 def ease_in_out_sine(t_normalized):
     return -(math.cos(math.pi * t_normalized) - 1) / 2
