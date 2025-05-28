@@ -148,13 +148,12 @@ def process_crawled_images(result):
             # Skip if no image or invalid image URL
             if not image_url or image_url == "Image not found" or image_url == "N/A" or image_url == "Error":
                 continue
-                
-            # Process the image
-            output_path = process_image_from_url(image_url, title)
-            if output_path:
+                  # Process the image and save locally
+            local_path = process_image_from_url(image_url, title)
+            if local_path:
                 processed_images.append({
                     "original_url": image_url,
-                    "processed_path": output_path,
+                    "local_path": local_path,
                     "title": title
                 })
     

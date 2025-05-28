@@ -15,6 +15,20 @@ except ImportError:
 TARGET_DISPLAY_WIDTH = 800
 TARGET_DISPLAY_HEIGHT = 600
 
+# Configure image storage
+IMAGE_STORAGE_DIR = os.path.join(os.path.dirname(__file__), 'processed_images')
+os.makedirs(IMAGE_STORAGE_DIR, exist_ok=True)
+
+def generate_unique_filename(title=None, extension='.png'):
+    """Generate a unique filename with optional title"""
+    unique_id = uuid.uuid4().hex[:8]
+    if title:
+        # Clean title for filename use
+        clean_title = ''.join(c for c in title if c.isalnum() or c in (' ', '-', '_'))[:50]
+        clean_title = clean_title.replace(' ', '_')
+        return f"{clean_title}_{unique_id}{extension}"
+    return f"image_{unique_id}{extension}"
+
 def enhance_image(image, sharpen, contrast):
     """Enhanced image processing with alpha channel support"""
     original_mode = image.mode
@@ -275,16 +289,15 @@ def download_image(image_url):
         print(f"Error downloading image from {image_url}: {e}")
         return None
 
-def image_to_base64(image, format='PNG'):
-    """Convert PIL Image to base64 string"""
-    buffer = BytesIO()
-    image.save(buffer, format=format)
-    buffer.seek(0)
-    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
-    return f"data:image/{format.lower()};base64,{image_base64}"
+def save_image(image, title=None):
+    """Save image to local storage and return the file path"""
+    filename = generate_unique_filename(title)
+    filepath = os.path.join(IMAGE_STORAGE_DIR, filename)
+    image.save(filepath, "PNG", quality=95)
+    return filepath
 
 def process_image_from_url(image_url, title, **kwargs):
-    """Process image from URL and return base64 string"""
+    """Process image from URL and save locally"""
     try:
         img_data = download_image(image_url)
         if not img_data:
@@ -309,7 +322,7 @@ def process_image(img_data, text, sharpen=1.5, contrast=1.1,
                  text_box_margin_horizontal=10,
                  text_box_bottom_offset=0,
                  text_ratio=0.80):
-    """Enhanced image processing with advanced text overlay, return base64 string"""
+    """Enhanced image processing with advanced text overlay, saves locally and returns file path"""
     try:
         img = Image.open(img_data)
 
@@ -346,10 +359,8 @@ def process_image(img_data, text, sharpen=1.5, contrast=1.1,
 
         # Add rounded corners to main image if specified
         if main_image_corner_radius > 0:
-            img = add_rounded_corners_to_image(img, main_image_corner_radius)
-
-        # Convert to base64 and return
-        return image_to_base64(img)
+            img = add_rounded_corners_to_image(img, main_image_corner_radius)        # Save locally and return file path
+        return save_image(img, text)
 
     except Exception as e:
         print(f"Error processing image: {e}")
