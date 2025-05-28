@@ -25,10 +25,15 @@ async def crawl_single_url(url: str):
         schema=Product.model_json_schema(),
         extraction_type="schema",
         instruction="""Your are provided with a news article url, get the heading of the news the article talks about \n
-        and one more task is to ge the image tag src which is near to the found heading, also get the alt attrubute of the img \n
-        Just take one heading and the image src near to that heading.\n
+        and one more task is to ge the image tag src which is near to the found heading. \n
         
-        NOTE: consider and get only the main heading""",
+        NOTE: \n
+           Extract the main news article information:
+            1. Main headline/title
+            2. The primary featured image or thumbnail that represents this specific news story
+            3. Only return images that are directly related to the article content, not advertisements, social media icons, or navigation elements
+            4. Look for images with alt text that matches the headline keywords
+            5. Prioritize images that appear in the article body or as the featured image""",
         chunk_token_threshold=1000,
         overlap_rate=0.0,
         apply_chunking=True,

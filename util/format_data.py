@@ -34,10 +34,6 @@ def format_data(data):
     
     return formatted_data
 
-def generate_image(img_url, title):
-    base64_image = process_image_from_url(img_url, title)
-    return base64_image
-
 def do_similarity(url_title_tag, articles):
     main_title = url_title_tag['title']
     max_similarity = -1

@@ -99,7 +99,7 @@ def get_news(payload: GetNewsRequest):
                 articles = data['articles']
                 
                 best_url, best_title = do_similarity(url_title_tag, articles)
-                img_base64 = generate_image(best_url, best_title)
+                img_base64 = process_image_from_url(best_url, best_title)
                 
                 final_data = {
                     "url" : url,
