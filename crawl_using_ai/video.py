@@ -41,49 +41,6 @@ TEXT_PARAMS = {
 def ease_in_out_sine(t_normalized):
     return -(math.cos(math.pi * t_normalized) - 1) / 2
 
-def transition_crossfade(clip, duration, target_size=None, fps=None):
-    return clip.crossfadein(duration)
-
-def transition_slide_in_from_left(clip, duration, target_size=None, fps=None):
-    return slide_in(clip, duration, 'left')
-
-def transition_slide_in_from_right(clip, duration, target_size=None, fps=None):
-    return slide_in(clip, duration, 'right')
-
-def transition_slide_in_from_top(clip, duration, target_size=None, fps=None):
-    return slide_in(clip, duration, 'top')
-
-def transition_slide_in_from_bottom(clip, duration, target_size=None, fps=None):
-    return slide_in(clip, duration, 'bottom')
-
-def transition_fade_in(clip, duration, target_size=None, fps=None):
-    return fadein.fadein(clip, duration)
-
-def transition_zoom_in(clip, duration, target_size=None, fps=None):
-    def effect(get_frame, t):
-        if t < duration:
-            zoom_factor = 1.0 + (0.5 * (t / duration))
-            frame = get_frame(t)
-            pil_img = Image.fromarray(frame)
-            w, h = pil_img.size
-            new_w, new_h = int(w / zoom_factor), int(h / zoom_factor)
-            img = pil_img.resize((new_w, new_h), LANCZOS_RESAMPLE)
-            result = Image.new('RGB', (w, h))
-            result.paste(img, ((w - new_w) // 2, (h - new_h) // 2))
-            return np.array(result)
-        return get_frame(t)
-    return clip.fl(effect)
-
-AVAILABLE_TRANSITIONS = [
-    transition_crossfade,
-    transition_slide_in_from_left,
-    transition_slide_in_from_right,
-    transition_slide_in_from_top,
-    transition_slide_in_from_bottom,
-    transition_fade_in,
-    transition_zoom_in
-]
-
 def lerp(start, end, t_eased):
     return start + t_eased * (end - start)
 
@@ -331,6 +288,21 @@ def create_ken_burns_clip(image_path, duration, target_size, fps, text):
         return np.array(frame_pil.convert('RGB'))
 
     return VideoClip(make_frame, duration=duration)
+
+def transition_zoom_in(clip, duration, target_size=None, fps=None):
+    def effect(get_frame, t):
+        if t < duration:
+            zoom_factor = 1.0 + (0.5 * (t / duration))
+            frame = get_frame(t)
+            pil_img = Image.fromarray(frame)
+            w, h = pil_img.size
+            new_w, new_h = int(w / zoom_factor), int(h / zoom_factor)
+            img = pil_img.resize((new_w, new_h), LANCZOS_RESAMPLE)
+            result = Image.new('RGB', (w, h))
+            result.paste(img, ((w - new_w) // 2, (h - new_h) // 2))
+            return np.array(result)
+        return get_frame(t)
+    return clip.fl(effect)
 
 def apply_transition(clip, next_clip, transition_type, duration, fps):
     """Apply rich transition between two clips"""
