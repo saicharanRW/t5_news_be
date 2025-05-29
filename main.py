@@ -8,6 +8,7 @@ from util.format_data import format_data, do_similarity
 from crawl_using_ai.crawl_images import extract_title_from_url
 from crawl_using_ai.image import process_image_from_url
 from crawl_using_ai.video import images_to_advanced_video
+from crawl_using_ai.music import add_music_to_video
 from request.requests import KeywordRequest, GetNewsRequest
 
 load_dotenv()
@@ -99,7 +100,21 @@ def get_news(payload: GetNewsRequest):
             if image_paths:
                 output_video = os.path.join(image_folder, "video.mp4")
                 images_to_advanced_video(image_folder, output_video, titles, fps=24)
-                yield {"video_path": output_video}
+                
+                # Immediately add music to the generated video, cut music to 25 seconds
+                audio_path = "audio.mp3"  # Ensure this file exists
+                final_video_path = os.path.join(image_folder, "final_video.mp4")
+                
+                # Trim audio to 25 seconds if longer
+                from moviepy.editor import AudioFileClip
+                audio_clip = AudioFileClip(audio_path).subclip(0, 25)
+                trimmed_audio_path = os.path.join(image_folder, "audio.mp3")
+                audio_clip.write_audiofile(trimmed_audio_path)
+                audio_clip.close()
+                
+                add_music_to_video(output_video, trimmed_audio_path, final_video_path)
+                
+                yield {"video_path": final_video_path}
             else:
                 yield {"video_path": None}
 
