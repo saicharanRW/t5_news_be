@@ -118,3 +118,5 @@ def get_news(payload: GetNewsRequest):
         return {"error": "Invalid JSON format"}
         
         
+        
+        
